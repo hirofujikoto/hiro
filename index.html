@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <title>由布蹴友会 50周年記念ポータル</title>
   
+  <!-- スマホでの文字縮小を防ぎ、適切なサイズに固定するビューポート設定 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
@@ -17,9 +19,9 @@
 
   <style>
     /* SOURCE INFORMATION
-       Version: 2.0.8 (2026/07/26)
+       Version: 2.0.9 (2026/07/26)
        Level: Production
-       Topic: Yufu Shuyukai 50th Dashboard (Vercel Frontend Separation via fetch API)
+       Topic: Yufu Shuyukai 50th Dashboard (Mobile Viewport & Font Size Optimization)
     */
 
     :root {
@@ -29,54 +31,54 @@
       --lime-green: #9ACD32;     
       --bg-light: #F4F7FA;       
     }
-    body { margin: 0; padding: 0; background-color: var(--bg-light); font-family: 'Noto Sans JP', sans-serif; color: #1E293B; }
-    .version-info { position: absolute; top: 8px; left: 10px; font-size: 11px; color: rgba(255,255,255,0.6); font-weight: bold; z-index: 10; }
+    body { margin: 0; padding: 0; background-color: var(--bg-light); font-family: 'Noto Sans JP', sans-serif; color: #1E293B; font-size: 16px; }
+    .version-info { position: absolute; top: 8px; left: 10px; font-size: 12px; color: rgba(255,255,255,0.6); font-weight: bold; z-index: 10; }
     
-    .main-header { background-color: var(--samurai-blue); color: white; text-align: center; padding: 35px 15px 30px 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-    .main-header h1 { margin: 0; font-size: 23px; font-weight: 900; line-height: 1.7; letter-spacing: 0.5px; }
-    .title-line1 { color: #FFFFFF; display: block; }
-    .title-line2 { color: var(--gold-accent); font-size: 21px; display: block; margin: 4px 0; }
-    .title-line3 { color: var(--bright-red); font-size: 23px; font-weight: 900; display: block; }
-    .soccer-ball { margin: 0 8px; font-size: 20px; }
+    .main-header { background-color: var(--samurai-blue); color: white; text-align: center; padding: 40px 15px 35px 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+    .main-header h1 { margin: 0; font-size: 26px; font-weight: 900; line-height: 1.7; letter-spacing: 0.5px; }
+    .title-line1 { color: #FFFFFF; display: block; font-size: 24px; }
+    .title-line2 { color: var(--gold-accent); font-size: 22px; display: block; margin: 6px 0; }
+    .title-line3 { color: var(--bright-red); font-size: 26px; font-weight: 900; display: block; }
+    .soccer-ball { margin: 0 8px; font-size: 22px; }
 
-    .welcome-bar { background-color: #00153a; color: var(--gold-accent); text-align: center; padding: 8px; font-size: 14px; font-weight: bold; display: none; }
+    .welcome-bar { background-color: #00153a; color: var(--gold-accent); text-align: center; padding: 12px; font-size: 16px; font-weight: bold; display: none; }
     
     .container { width: 95%; max-width: 700px; margin: 25px auto 20px auto; }
 
-    .notice-box { background: #FFFFFF; border-left: 5px solid #34d399; padding: 16px; border-radius: 8px; margin-bottom: 25px; font-size: 13px; color: #334155; line-height: 1.6; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-    .notice-box strong { color: var(--samurai-blue); font-size: 14px; }
+    .notice-box { background: #FFFFFF; border-left: 5px solid #34d399; padding: 18px; border-radius: 8px; margin-bottom: 25px; font-size: 15px; color: #334155; line-height: 1.6; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .notice-box strong { color: var(--samurai-blue); font-size: 16px; }
 
-    .register-alert { background: linear-gradient(135deg, #fffae6 0%, #fff5cc 100%); border: 2px solid var(--gold-accent); padding: 15px; border-radius: 8px; margin-bottom: 10px; text-align: center; font-weight: bold; color: #715c00; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: none; }
-    .recovery-btn { background: #E0F2FE; border: 1px solid #38BDF8; padding: 12px; border-radius: 8px; margin-bottom: 25px; text-align: center; font-size: 13px; font-weight: bold; color: #0284C7; cursor: pointer; display: none; }
+    .register-alert { background: linear-gradient(135deg, #fffae6 0%, #fff5cc 100%); border: 2px solid var(--gold-accent); padding: 18px; border-radius: 8px; margin-bottom: 10px; text-align: center; font-weight: bold; color: #715c00; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: none; font-size: 16px; }
+    .recovery-btn { background: #E0F2FE; border: 1px solid #38BDF8; padding: 16px; border-radius: 8px; margin-bottom: 25px; text-align: center; font-size: 15px; font-weight: bold; color: #0284C7; cursor: pointer; display: none; }
 
-    .menu-card { background: white; border-radius: 14px; padding: 5px 20px; box-shadow: 0 6px 20px rgba(0,0,0,0.06); }
-    .menu-row { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid #EEF2F6; }
+    .menu-card { background: white; border-radius: 14px; padding: 10px 20px; box-shadow: 0 6px 20px rgba(0,0,0,0.06); }
+    .menu-row { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; border-bottom: 1px solid #EEF2F6; }
     .menu-row:last-child { border-bottom: none; }
-    .menu-name { font-size: 15px; font-weight: 700; line-height: 1.4; display: flex; align-items: center; gap: 10px; text-align: left; }
-    .list-soccer { color: var(--samurai-blue); font-size: 13px; }
-    .btn-active { background-color: var(--lime-green); color: var(--samurai-blue); text-decoration: none; font-weight: bold; padding: 10px 22px; border-radius: 8px; font-size: 14px; white-space: nowrap; box-shadow: 0 4px 8px rgba(154,205,50,0.3); transition: background 0.2s, transform 0.1s; }
+    .menu-name { font-size: 18px; font-weight: 700; line-height: 1.4; display: flex; align-items: center; gap: 10px; text-align: left; }
+    .list-soccer { color: var(--samurai-blue); font-size: 16px; }
+    .btn-active { background-color: var(--lime-green); color: var(--samurai-blue); text-decoration: none; font-weight: bold; padding: 12px 24px; border-radius: 8px; font-size: 16px; white-space: nowrap; box-shadow: 0 4px 8px rgba(154,205,50,0.3); transition: background 0.2s, transform 0.1s; }
     .btn-active:hover { background-color: #88c028; }
     .btn-active:active { transform: translateY(2px); }
-    .btn-inactive { background-color: #E2E8F0; color: #94A3B8; font-weight: bold; padding: 10px 18px; border-radius: 8px; font-size: 13px; white-space: nowrap; }
+    .btn-inactive { background-color: #E2E8F0; color: #94A3B8; font-weight: bold; padding: 12px 20px; border-radius: 8px; font-size: 15px; white-space: nowrap; }
 
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 9999; }
-    .modal-box { background: white; padding: 25px; border-radius: 12px; width: 85%; max-width: 400px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); position: relative; }
-    .modal-box h3 { margin-top: 0; color: var(--samurai-blue); margin-bottom: 15px; }
+    .modal-box { background: white; padding: 30px 25px; border-radius: 12px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); position: relative; }
+    .modal-box h3 { margin-top: 0; color: var(--samurai-blue); margin-bottom: 15px; font-size: 22px; }
     .form-group { margin-bottom: 15px; text-align: left; }
-    .form-control { width: 100%; padding: 12px; border: 1px solid #CBD5E1; border-radius: 6px; box-sizing: border-box; font-size: 15px; }
-    .btn-submit { background-color: var(--samurai-blue); color: white; border: none; padding: 12px 20px; border-radius: 6px; font-weight: bold; width: 100%; cursor: pointer; font-size: 15px; margin-bottom: 10px;}
-    .btn-cancel { background-color: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; padding: 10px 20px; border-radius: 6px; font-weight: bold; width: 100%; cursor: pointer; font-size: 13px; margin-top: 5px; }
+    .form-control { width: 100%; padding: 14px; border: 1px solid #CBD5E1; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
+    .btn-submit { background-color: var(--samurai-blue); color: white; border: none; padding: 15px 20px; border-radius: 6px; font-weight: bold; width: 100%; cursor: pointer; font-size: 17px; margin-bottom: 12px;}
+    .btn-cancel { background-color: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; padding: 12px 20px; border-radius: 6px; font-weight: bold; width: 100%; cursor: pointer; font-size: 15px; margin-top: 5px; }
 
-    .live-log-container { width: 95%; max-width: 700px; margin: 10px auto 50px auto; background-color: #1E293B; border-radius: 8px; padding: 15px; box-sizing: border-box; }
-    .live-log-header { font-size: 12px; color: var(--gold-accent); font-weight: bold; margin-bottom: 8px; display: flex; justify-content: space-between; }
-    .live-log-body { font-family: monospace; font-size: 12px; color: #38BDF8; line-height: 1.5; text-align: left; }
-    .log-entry { border-bottom: 1px solid #334155; padding: 3px 0; }
+    .live-log-container { width: 95%; max-width: 700px; margin: 15px auto 50px auto; background-color: #1E293B; border-radius: 8px; padding: 18px; box-sizing: border-box; }
+    .live-log-header { font-size: 14px; color: var(--gold-accent); font-weight: bold; margin-bottom: 10px; display: flex; justify-content: space-between; }
+    .live-log-body { font-family: monospace; font-size: 13px; color: #38BDF8; line-height: 1.6; text-align: left; }
+    .log-entry { border-bottom: 1px solid #334155; padding: 4px 0; }
     .log-time { color: #94A3B8; margin-right: 8px; }
   </style>
 </head>
 <body>
 
-  <div class="version-info">v2.0.8 (Server Separated API Mode)</div>
+  <div class="version-info">v2.0.9 (Mobile UI Scale Optimized)</div>
 
   <!-- ヘッダー -->
   <div class="main-header">
@@ -119,22 +121,22 @@
   <div class="modal-overlay" id="login-modal">
     <div class="modal-box">
       <h3>⚽ ポータルへ入室</h3>
-      <p style="font-size:12px; color:#64748B; margin-bottom:15px; line-height:1.4;">
+      <p style="font-size:14px; color:#64748B; margin-bottom:18px; line-height:1.5;">
         OBの皆様、お名前の登録または選択を<br>お願いします（必須項目となります）。
       </p>
 
-      <div style="background:#F0F4F8; padding:10px; border-radius:8px; margin-bottom:15px; border: 1px solid #CBD5E1;">
-        <div style="font-size:11px; color:#64748B; text-align:left; margin-bottom:5px; font-weight:bold;">
+      <div style="background:#F0F4F8; padding:15px; border-radius:8px; margin-bottom:20px; border: 1px solid #CBD5E1;">
+        <div style="font-size:13px; color:#64748B; text-align:left; margin-bottom:8px; font-weight:bold;">
           ▼ 既に登録済みの方はこちらから選ぶだけ
         </div>
-        <select id="select-user" class="form-control" style="padding:8px; border-color:var(--samurai-blue); border-width:2px;"></select>
-        <button class="btn-submit" style="margin-top:5px; padding:10px;" onclick="loginExistingUser()">選んで入室する（復旧・日時更新）</button>
+        <select id="select-user" class="form-control" style="padding:12px; border-color:var(--samurai-blue); border-width:2px; font-size:16px;"></select>
+        <button class="btn-submit" style="margin-top:10px; padding:12px;" onclick="loginExistingUser()">選んで入室する（復旧・日時更新）</button>
       </div>
 
-      <div style="text-align:left; margin-bottom:15px;">
-        <div style="font-size:11px; font-weight:bold; color:var(--samurai-blue); margin-bottom:5px;">▼ 初めての方はこちら</div>
-        <input type="text" id="input-nickname" class="form-control" placeholder="ニックネームを入力" style="margin-bottom:10px; padding:10px;">
-        <select id="input-song" class="form-control" style="padding:10px;"></select>
+      <div style="text-align:left; margin-bottom:20px;">
+        <div style="font-size:13px; font-weight:bold; color:var(--samurai-blue); margin-bottom:8px;">▼ 初めての方はこちら</div>
+        <input type="text" id="input-nickname" class="form-control" placeholder="ニックネームを入力" style="margin-bottom:12px; padding:12px;">
+        <select id="input-song" class="form-control" style="padding:12px;"></select>
       </div>
       
       <button class="btn-submit" style="background-color:var(--lime-green); color:var(--samurai-blue);" onclick="submitRegistration()">新規登録して入室</button>
@@ -144,8 +146,8 @@
 
   <script>
     const MY_LIFF_ID = "2010848193-i0mzw5Ie"; 
-    // 🔴【重要】新しく発行したGASのWebアプリURL（デプロイURL）をここに貼り付けてください
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbwWir1AbBhw-V42B5P7T2damW0_OhV0aps7fU0Pc0n7aWVfmGBU5N2Ox8-C__dz6xnV/exec";
+    // ※前回正しく通信できたGASのURLを維持してください
+    const GAS_URL = "【ここにGASの最新のデプロイURLを貼り付けます】";
 
     let menuData = [];
     let songData = [];
@@ -153,7 +155,6 @@
     let currentUser = "未登録ユーザー"; 
     let currentLineId = ""; 
 
-    // v2.0.8: GASサーバーとの通信用API関数
     async function fetchApi(action, payload = {}) {
       if (!GAS_URL || GAS_URL.includes("【")) {
         addLiveLog("❌ エラー: GAS_URLが設定されていません。");
@@ -167,7 +168,7 @@
           payload.action = action;
           const res = await fetch(GAS_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'text/plain' }, // CORS回避のためのテキスト送信
+            headers: { 'Content-Type': 'text/plain' },
             body: JSON.stringify(payload)
           });
           return await res.json();
@@ -215,7 +216,6 @@
       while (logBody.children.length > 4) { logBody.removeChild(logBody.lastChild); }
     }
 
-    // v2.0.8: データ取得後に画面を描画する関数
     function renderUI() {
       let html = '';
       menuData.forEach(function(item) {
@@ -252,9 +252,8 @@
       fallbackOriginalOnload();
     }
 
-    // v2.0.8: 起動時にサーバーからデータを取得する処理に変更
     window.onload = async function() {
-      addLiveLog("サーバーから初期データを読み込み中... [v2.0.8]");
+      addLiveLog("サーバーから初期データを読み込み中... [v2.0.9]");
       
       const initData = await fetchApi('init');
       if (initData) {
