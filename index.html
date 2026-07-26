@@ -18,9 +18,9 @@
 
   <style>
     /* SOURCE INFORMATION
-       Version: 2.0.11 (2026/07/27)
+       Version: 2.0.12 (2026/07/27)
        Level: Production
-       Topic: Yufu Shuyukai 50th Dashboard (Web Access Support & LIFF Bypass on PC)
+       Topic: Yufu Shuyukai 50th Dashboard (UI Layout Fix - Notice relocation & Button merge)
     */
 
     :root {
@@ -44,11 +44,8 @@
     
     .container { width: 95%; max-width: 700px; margin: 25px auto 20px auto; }
 
-    .notice-box { background: #FFFFFF; border-left: 5px solid #34d399; padding: 18px; border-radius: 8px; margin-bottom: 25px; font-size: 15px; color: #334155; line-height: 1.6; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-    .notice-box strong { color: var(--samurai-blue); font-size: 16px; }
-
-    .register-alert { background: linear-gradient(135deg, #fffae6 0%, #fff5cc 100%); border: 2px solid var(--gold-accent); padding: 18px; border-radius: 8px; margin-bottom: 10px; text-align: center; font-weight: bold; color: #715c00; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: none; font-size: 16px; }
-    .recovery-btn { background: #E0F2FE; border: 1px solid #38BDF8; padding: 16px; border-radius: 8px; margin-bottom: 25px; text-align: center; font-size: 15px; font-weight: bold; color: #0284C7; cursor: pointer; display: none; }
+    /* 間延び解消のための1行化統合ボタン */
+    .auth-banner { background: linear-gradient(135deg, #fffae6 0%, #fff5cc 100%); border: 2px solid var(--gold-accent); padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; font-weight: bold; color: #715c00; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: none; font-size: 15px; }
 
     .menu-card { background: white; border-radius: 14px; padding: 10px 20px; box-shadow: 0 6px 20px rgba(0,0,0,0.06); }
     .menu-row { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; border-bottom: 1px solid #EEF2F6; }
@@ -59,6 +56,11 @@
     .btn-active:hover { background-color: #88c028; }
     .btn-active:active { transform: translateY(2px); }
     .btn-inactive { background-color: #E2E8F0; color: #94A3B8; font-weight: bold; padding: 12px 20px; border-radius: 8px; font-size: 15px; white-space: nowrap; }
+
+    /* 移動したメッセージボックス用 */
+    .notice-wrapper { width: 95%; max-width: 700px; margin: 10px auto 10px auto; }
+    .notice-box { background: #FFFFFF; border-left: 5px solid #34d399; padding: 18px; border-radius: 8px; font-size: 15px; color: #334155; line-height: 1.6; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .notice-box strong { color: var(--samurai-blue); font-size: 16px; }
 
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 9999; }
     .modal-box { background: white; padding: 30px 25px; border-radius: 12px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); position: relative; }
@@ -77,7 +79,7 @@
 </head>
 <body>
 
-  <div class="version-info">v2.0.11 (Web Access Support & LIFF Bypass)</div>
+  <div class="version-info">v2.0.12 (UI Layout Fixes)</div>
 
   <!-- ヘッダー -->
   <div class="main-header">
@@ -91,21 +93,21 @@
   <div class="welcome-bar" id="welcome-bar"></div>
 
   <div class="container">
+    <!-- 統合して1行化し、間延びを解消した登録・復旧ボタン -->
+    <div class="auth-banner" id="auth-btn" onclick="openModal()">
+      ✨ 新規登録 ／ 🔄 登録済みの方（入室・復旧）
+    </div>
+
+    <div class="menu-card" id="menu-list-container"></div>
+  </div>
+
+  <!-- 画面上部からログの前へ移動したメッセージボックス -->
+  <div class="notice-wrapper">
     <div class="notice-box">
       <strong>ℹ️ 画面上部のメッセージについて</strong><br>
       「このアプリケーションは Google Apps Script のユーザーによって作成されたものです」という表示は、Googleのセキュリティ仕様によるものです。有害なものではありませんのでご安心ください。<br><br>
       <span style="color: #059669; font-weight: bold;">💡 右上の「×（バツ）」ボタンを押して閉じてご使用ください。</span>
     </div>
-
-    <div class="register-alert" id="register-alert" onclick="openModal()">
-      <i class="fa-solid fa-user-plus"></i> ✨ まずはこちらから、ニックネームをご登録ください（初回のみ）
-    </div>
-    
-    <div class="recovery-btn" id="recovery-btn" onclick="openModal()">
-      <i class="fa-solid fa-rotate"></i> 登録済みで、この画面が出た方はこちら（復旧・日時更新）
-    </div>
-
-    <div class="menu-card" id="menu-list-container"></div>
   </div>
 
   <div class="live-log-container">
@@ -251,7 +253,7 @@
     }
 
     window.onload = async function() {
-      addLiveLog("サーバーから初期データを読み込み中... [v2.0.11]");
+      addLiveLog("サーバーから初期データを読み込み中... [v2.0.12]");
       
       const initData = await fetchApi('init');
       if (initData) {
@@ -277,7 +279,6 @@
         }
       }, 3000); 
       
-      // 【変更点】 PCアクセス時にLINEログインに強制リダイレクトされる設定を削除しました。
       liff.init({ 
         liffId: MY_LIFF_ID
       })
@@ -285,7 +286,6 @@
           if (isLiffHandled) return;
           clearTimeout(liffTimeout);
 
-          // 【変更点】 LINE内ブラウザからのアクセスかどうかを判定します。
           if (liff.isInClient()) {
             if (!liff.isLoggedIn()) {
               addLiveLog("LINE内で未ログイン状態です。ログイン処理を行います。");
@@ -296,7 +296,7 @@
           } else {
             addLiveLog("💻 ウェブブラウザ（LINE外）からのアクセスを検知。記憶モードで起動します。");
             safeFallbackOriginalOnload();
-            return null; // プロファイル取得をスキップ
+            return null; 
           }
         })
         .then((profile) => {
@@ -338,8 +338,7 @@
       
       if (savedNickname && savedNickname !== "未登録ユーザー") {
         currentUser = savedNickname;
-        document.getElementById('register-alert').style.display = 'none';
-        document.getElementById('recovery-btn').style.display = 'none';
+        document.getElementById('auth-btn').style.display = 'none';
         const welcome = document.getElementById('welcome-bar');
         welcome.innerHTML = '<i class="fa-solid fa-futbol"></i> ようこそ、' + currentUser + ' 先輩！';
         welcome.style.display = 'block';
@@ -348,8 +347,7 @@
         addLiveLog(logMsg);
         fetchApi('logAction', { nickname: currentUser, actionText: logMsg, envLogText: getEnvLogText() });
       } else {
-        document.getElementById('register-alert').style.display = 'block';
-        document.getElementById('recovery-btn').style.display = 'block';
+        document.getElementById('auth-btn').style.display = 'block';
         document.getElementById('welcome-bar').style.display = 'none';
         addLiveLog("未登録端末。上部のボタンから入室してください。");
       }
@@ -365,8 +363,7 @@
 
     function applyLoginState() {
       closeModal();
-      document.getElementById('register-alert').style.display = 'none';
-      document.getElementById('recovery-btn').style.display = 'none'; 
+      document.getElementById('auth-btn').style.display = 'none';
       const welcome = document.getElementById('welcome-bar');
       welcome.innerHTML = '<i class="fa-solid fa-futbol"></i> ようこそ、' + currentUser + ' 先輩！';
       welcome.style.display = 'block';
