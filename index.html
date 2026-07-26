@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>由布蹴友会 50周年記念ポータル</title>
+  
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+  <style>
+    /* SOURCE INFORMATION
+       Version: 2.0.8 (2026/07/26)
+       Level: Production
+       Topic: Yufu Shuyukai 50th Dashboard (Vercel Frontend Separation via fetch API)
+    */
+
+    :root {
+      --samurai-blue: #001E55; 
+      --gold-accent: #D4AF37;    
+      --bright-red: #FF3333;     
+      --lime-green: #9ACD32;     
+      --bg-light: #F4F7FA;       
+    }
+    body { margin: 0; padding: 0; background-color: var(--bg-light); font-family: 'Noto Sans JP', sans-serif; color: #1E293B; }
+    .version-info { position: absolute; top: 8px; left: 10px; font-size: 11px; color: rgba(255,255,255,0.6); font-weight: bold; z-index: 10; }
+    
+    .main-header { background-color: var(--samurai-blue); color: white; text-align: center; padding: 35px 15px 30px 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+    .main-header h1 { margin: 0; font-size: 23px; font-weight: 900; line-height: 1.7; letter-spacing: 0.5px; }
+    .title-line1 { color: #FFFFFF; display: block; }
+    .title-line2 { color: var(--gold-accent); font-size: 21px; display: block; margin: 4px 0; }
+    .title-line3 { color: var(--bright-red); font-size: 23px; font-weight: 900; display: block; }
+    .soccer-ball { margin: 0 8px; font-size: 20px; }
+
+    .welcome-bar { background-color: #00153a; color: var(--gold-accent); text-align: center; padding: 8px; font-size: 14px; font-weight: bold; display: none; }
+    
+    .container { width: 95%; max-width: 700px; margin: 25px auto 20px auto; }
+
+    .notice-box { background: #FFFFFF; border-left: 5px solid #34d399; padding: 16px; border-radius: 8px; margin-bottom: 25px; font-size: 13px; color: #334155; line-height: 1.6; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .notice-box strong { color: var(--samurai-blue); font-size: 14px; }
+
+    .register-alert { background: linear-gradient(135deg, #fffae6 0%, #fff5cc 100%); border: 2px solid var(--gold-accent); padding: 15px; border-radius: 8px; margin-bottom: 10px; text-align: center; font-weight: bold; color: #715c00; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: none; }
+    .recovery-btn { background: #E0F2FE; border: 1px solid #38BDF8; padding: 12px; border-radius: 8px; margin-bottom: 25px; text-align: center; font-size: 13px; font-weight: bold; color: #0284C7; cursor: pointer; display: none; }
+
+    .menu-card { background: white; border-radius: 14px; padding: 5px 20px; box-shadow: 0 6px 20px rgba(0,0,0,0.06); }
+    .menu-row { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid #EEF2F6; }
+    .menu-row:last-child { border-bottom: none; }
+    .menu-name { font-size: 15px; font-weight: 700; line-height: 1.4; display: flex; align-items: center; gap: 10px; text-align: left; }
+    .list-soccer { color: var(--samurai-blue); font-size: 13px; }
+    .btn-active { background-color: var(--lime-green); color: var(--samurai-blue); text-decoration: none; font-weight: bold; padding: 10px 22px; border-radius: 8px; font-size: 14px; white-space: nowrap; box-shadow: 0 4px 8px rgba(154,205,50,0.3); transition: background 0.2s, transform 0.1s; }
+    .btn-active:hover { background-color: #88c028; }
+    .btn-active:active { transform: translateY(2px); }
+    .btn-inactive { background-color: #E2E8F0; color: #94A3B8; font-weight: bold; padding: 10px 18px; border-radius: 8px; font-size: 13px; white-space: nowrap; }
+
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 9999; }
+    .modal-box { background: white; padding: 25px; border-radius: 12px; width: 85%; max-width: 400px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); position: relative; }
+    .modal-box h3 { margin-top: 0; color: var(--samurai-blue); margin-bottom: 15px; }
+    .form-group { margin-bottom: 15px; text-align: left; }
+    .form-control { width: 100%; padding: 12px; border: 1px solid #CBD5E1; border-radius: 6px; box-sizing: border-box; font-size: 15px; }
+    .btn-submit { background-color: var(--samurai-blue); color: white; border: none; padding: 12px 20px; border-radius: 6px; font-weight: bold; width: 100%; cursor: pointer; font-size: 15px; margin-bottom: 10px;}
+    .btn-cancel { background-color: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; padding: 10px 20px; border-radius: 6px; font-weight: bold; width: 100%; cursor: pointer; font-size: 13px; margin-top: 5px; }
+
+    .live-log-container { width: 95%; max-width: 700px; margin: 10px auto 50px auto; background-color: #1E293B; border-radius: 8px; padding: 15px; box-sizing: border-box; }
+    .live-log-header { font-size: 12px; color: var(--gold-accent); font-weight: bold; margin-bottom: 8px; display: flex; justify-content: space-between; }
+    .live-log-body { font-family: monospace; font-size: 12px; color: #38BDF8; line-height: 1.5; text-align: left; }
+    .log-entry { border-bottom: 1px solid #334155; padding: 3px 0; }
+    .log-time { color: #94A3B8; margin-right: 8px; }
+  </style>
+</head>
+<body>
+
+  <div class="version-info">v2.0.8 (Server Separated API Mode)</div>
+
+  <!-- ヘッダー -->
+  <div class="main-header">
+    <h1>
+      <span class="title-line1">由布蹴友会50周年に向けて</span>
+      <span class="title-line2"><i class="fa-solid fa-futbol soccer-ball"></i>～乾杯クラブ<i class="fa-solid fa-futbol soccer-ball"></i></span>
+      <span class="title-line3">『繋がる、繋げる、感謝する』</span>
+    </h1>
+  </div>
+
+  <div class="welcome-bar" id="welcome-bar"></div>
+
+  <div class="container">
+    <div class="notice-box">
+      <strong>ℹ️ 画面上部のメッセージについて</strong><br>
+      「このアプリケーションは Google Apps Script のユーザーによって作成されたものです」という表示は、Googleのセキュリティ仕様によるものです。有害なものではありませんのでご安心ください。<br><br>
+      <span style="color: #059669; font-weight: bold;">💡 右上の「×（バツ）」ボタンを押して閉じてご使用ください。</span>
+    </div>
+
+    <div class="register-alert" id="register-alert" onclick="openModal()">
+      <i class="fa-solid fa-user-plus"></i> ✨ まずはこちらから、ニックネームをご登録ください（初回のみ）
+    </div>
+    
+    <div class="recovery-btn" id="recovery-btn" onclick="openModal()">
+      <i class="fa-solid fa-rotate"></i> 登録済みで、この画面が出た方はこちら（復旧・日時更新）
+    </div>
+
+    <div class="menu-card" id="menu-list-container"></div>
+  </div>
+
+  <div class="live-log-container">
+    <div class="live-log-header">
+      <span>🛠️ システム実行ログ監視（最新4件）</span><span style="color: #34D399;">● 正常稼働中</span>
+    </div>
+    <div class="live-log-body" id="live-log-body">
+      <div class="log-entry"><span class="log-time">--:--:--</span>通信待機中...</div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="login-modal">
+    <div class="modal-box">
+      <h3>⚽ ポータルへ入室</h3>
+      <p style="font-size:12px; color:#64748B; margin-bottom:15px; line-height:1.4;">
+        OBの皆様、お名前の登録または選択を<br>お願いします（必須項目となります）。
+      </p>
+
+      <div style="background:#F0F4F8; padding:10px; border-radius:8px; margin-bottom:15px; border: 1px solid #CBD5E1;">
+        <div style="font-size:11px; color:#64748B; text-align:left; margin-bottom:5px; font-weight:bold;">
+          ▼ 既に登録済みの方はこちらから選ぶだけ
+        </div>
+        <select id="select-user" class="form-control" style="padding:8px; border-color:var(--samurai-blue); border-width:2px;"></select>
+        <button class="btn-submit" style="margin-top:5px; padding:10px;" onclick="loginExistingUser()">選んで入室する（復旧・日時更新）</button>
+      </div>
+
+      <div style="text-align:left; margin-bottom:15px;">
+        <div style="font-size:11px; font-weight:bold; color:var(--samurai-blue); margin-bottom:5px;">▼ 初めての方はこちら</div>
+        <input type="text" id="input-nickname" class="form-control" placeholder="ニックネームを入力" style="margin-bottom:10px; padding:10px;">
+        <select id="input-song" class="form-control" style="padding:10px;"></select>
+      </div>
+      
+      <button class="btn-submit" style="background-color:var(--lime-green); color:var(--samurai-blue);" onclick="submitRegistration()">新規登録して入室</button>
+      <button class="btn-cancel" onclick="closeModal()">キャンセル（閉じる）</button>
+    </div>
+  </div>
+
+  <script>
+    const MY_LIFF_ID = "2010848193-i0mzw5Ie"; 
+    // 🔴【重要】新しく発行したGASのWebアプリURL（デプロイURL）をここに貼り付けてください
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbwWir1AbBhw-V42B5P7T2damW0_OhV0aps7fU0Pc0n7aWVfmGBU5N2Ox8-C__dz6xnV/exec";
+
+    let menuData = [];
+    let songData = [];
+    let userData = []; 
+    let currentUser = "未登録ユーザー"; 
+    let currentLineId = ""; 
+
+    // v2.0.8: GASサーバーとの通信用API関数
+    async function fetchApi(action, payload = {}) {
+      if (!GAS_URL || GAS_URL.includes("【")) {
+        addLiveLog("❌ エラー: GAS_URLが設定されていません。");
+        return null;
+      }
+      try {
+        if (action === 'init') {
+          const res = await fetch(GAS_URL + "?api=init");
+          return await res.json();
+        } else {
+          payload.action = action;
+          const res = await fetch(GAS_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain' }, // CORS回避のためのテキスト送信
+            body: JSON.stringify(payload)
+          });
+          return await res.json();
+        }
+      } catch (e) {
+        addLiveLog("❌ 通信エラー: " + e.message);
+        return null;
+      }
+    }
+
+    function setCookie(name, value, days) {
+      let expires = "";
+      if (days) {
+        let date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        expires = "; expires=" + date.toUTCString();
+      }
+      document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+    }
+    function getCookie(name) {
+      let nameEQ = name + "=";
+      let ca = document.cookie.split(';');
+      for(let i=0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1,c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+      }
+      return null;
+    }
+
+    function getEnvLogText() {
+      const lsValue = localStorage.getItem('yufu_nickname') || "無し";
+      const ckValue = getCookie('yufu_nickname') || "無し";
+      const lineStatus = currentLineId ? "LINE-ID取得済(" + currentLineId.substring(0,6) + "...)" : "LINE未取得(外部ブラウザ等)";
+      return "LS=[" + lsValue + "], Cookie=[" + ckValue + "], " + lineStatus;
+    }
+
+    function addLiveLog(message) {
+      const logBody = document.getElementById('live-log-body');
+      const timeStr = new Date().toTimeString().split(' ')[0];
+      const newEntry = document.createElement('div');
+      newEntry.className = 'log-entry';
+      newEntry.innerHTML = '<span class="log-time">[' + timeStr + ']</span>' + message;
+      logBody.insertBefore(newEntry, logBody.firstChild);
+      while (logBody.children.length > 4) { logBody.removeChild(logBody.lastChild); }
+    }
+
+    // v2.0.8: データ取得後に画面を描画する関数
+    function renderUI() {
+      let html = '';
+      menuData.forEach(function(item) {
+        html += '<div class="menu-row">';
+        html += '<div class="menu-name"><i class="fa-regular fa-futbol list-soccer"></i> ' + item.menu + '</div>';
+        if (item.url && item.url.trim() !== "") {
+          html += '<a href="' + item.url + '" target="_blank" class="btn-active" onclick="handleMenuClick(\'' + item.menu + '\')">開く <i class="fa-solid fa-arrow-up-right-from-square"></i></a>';
+        } else {
+          html += '<span class="btn-inactive">準備中</span>';
+        }
+        html += '</div>';
+      });
+      document.getElementById('menu-list-container').innerHTML = html;
+
+      let selectSongHtml = '<option value="">-- 4年生の部歌を選択 --</option>';
+      songData.forEach(function(song) {
+        const displayText = '【' + song.year + '年】' + song.title;
+        selectSongHtml += '<option value="' + displayText + '">' + displayText + '</option>';
+      });
+      document.getElementById('input-song').innerHTML = selectSongHtml;
+
+      let selectUserHtml = '<option value="">-- （登録済み）お名前を選択 --</option>';
+      userData.forEach(function(name) {
+        selectUserHtml += '<option value="' + name + '">' + name + '</option>';
+      });
+      document.getElementById('select-user').innerHTML = selectUserHtml;
+    }
+
+    let isLiffHandled = false; 
+
+    function safeFallbackOriginalOnload() {
+      if (isLiffHandled) return;
+      isLiffHandled = true;
+      fallbackOriginalOnload();
+    }
+
+    // v2.0.8: 起動時にサーバーからデータを取得する処理に変更
+    window.onload = async function() {
+      addLiveLog("サーバーから初期データを読み込み中... [v2.0.8]");
+      
+      const initData = await fetchApi('init');
+      if (initData) {
+        menuData = initData.menuData || [];
+        songData = initData.songData || [];
+        userData = initData.userData || [];
+        renderUI();
+        addLiveLog("✅ データ読み込み完了");
+      }
+
+      if (!MY_LIFF_ID || MY_LIFF_ID === "【ここにLIFF IDを貼り付けます】") {
+        addLiveLog("⚠️ LIFF ID未設定です。従来の端末記憶モードで起動します。");
+        safeFallbackOriginalOnload();
+        return;
+      }
+
+      addLiveLog("LINEシステム(LIFF)初期化中... ID:" + MY_LIFF_ID.substring(0, 10) + "...");
+
+      let liffTimeout = setTimeout(() => {
+        if (!isLiffHandled) {
+          addLiveLog("⚠️ LINE通信がタイムアウトしました。従来の記憶モードで起動します。");
+          safeFallbackOriginalOnload();
+        }
+      }, 3000); 
+      
+      liff.init({ 
+        liffId: MY_LIFF_ID,
+        withLoginOnExternalBrowser: true 
+      })
+        .then(() => {
+          if (isLiffHandled) return;
+          clearTimeout(liffTimeout);
+
+          if (!liff.isLoggedIn()) {
+            addLiveLog("⚠️ [重要] LINE外ブラウザのためLINE IDを取得できません。");
+            safeFallbackOriginalOnload();
+            return;
+          }
+          return liff.getProfile();
+        })
+        .then((profile) => {
+          if (!profile || isLiffHandled) return;
+          isLiffHandled = true; 
+
+          currentLineId = profile.userId;
+          addLiveLog("✅ LINE情報取得成功！ (ID首部: " + currentLineId.substring(0, 6) + "...)");
+          
+          fetchApi('getUserByLineId', { lineId: currentLineId }).then(result => {
+            const registeredName = result ? result.nickname : null;
+            if (registeredName) {
+              currentUser = registeredName;
+              saveMemory(currentUser);
+              applyLoginState();
+              
+              const logMsg = "自動入室（LINEアカウント検知・紐付け済みユーザー）";
+              addLiveLog(logMsg);
+              fetchApi('logAction', { nickname: currentUser, actionText: logMsg, envLogText: getEnvLogText() });
+            } else {
+              addLiveLog("ℹ️ LINE未紐付けの端末です。登録または復旧を行ってください。");
+              fallbackOriginalOnload(); 
+            }
+          });
+        })
+        .catch((err) => {
+          if (isLiffHandled) return;
+          clearTimeout(liffTimeout);
+          addLiveLog("❌ LIFFエラー: [" + err.code + "] " + err.message);
+          safeFallbackOriginalOnload();
+        });
+    };
+
+    function fallbackOriginalOnload() {
+      let savedNickname = localStorage.getItem('yufu_nickname');
+      if (!savedNickname) {
+        savedNickname = getCookie('yufu_nickname');
+      }
+      
+      if (savedNickname && savedNickname !== "未登録ユーザー") {
+        currentUser = savedNickname;
+        document.getElementById('register-alert').style.display = 'none';
+        document.getElementById('recovery-btn').style.display = 'none';
+        const welcome = document.getElementById('welcome-bar');
+        welcome.innerHTML = '<i class="fa-solid fa-futbol"></i> ようこそ、' + currentUser + ' 先輩！';
+        welcome.style.display = 'block';
+
+        const logMsg = "自動入室（従来の端末記憶を検知）";
+        addLiveLog(logMsg);
+        fetchApi('logAction', { nickname: currentUser, actionText: logMsg, envLogText: getEnvLogText() });
+      } else {
+        document.getElementById('register-alert').style.display = 'block';
+        document.getElementById('recovery-btn').style.display = 'block';
+        document.getElementById('welcome-bar').style.display = 'none';
+        addLiveLog("未登録端末。上部のボタンから入室してください。");
+      }
+    }
+
+    function openModal() {
+      document.getElementById('login-modal').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('login-modal').style.display = 'none';
+    }
+
+    function applyLoginState() {
+      closeModal();
+      document.getElementById('register-alert').style.display = 'none';
+      document.getElementById('recovery-btn').style.display = 'none'; 
+      const welcome = document.getElementById('welcome-bar');
+      welcome.innerHTML = '<i class="fa-solid fa-futbol"></i> ようこそ、' + currentUser + ' 先輩！';
+      welcome.style.display = 'block';
+    }
+
+    function loginExistingUser() {
+      const selected = document.getElementById('select-user').value;
+      if (!selected) { alert("リストからお名前を選択してください。"); return; }
+      
+      currentUser = selected;
+      saveMemory(currentUser);
+      applyLoginState();
+      
+      fetchApi('bindLineIdToUser', { nickname: currentUser, lineId: currentLineId });
+      
+      const logMsg = "既存選択入室（日時更新・LINE ID紐付け試行: " + (currentLineId ? "成功" : "ID無") + "）"; 
+      addLiveLog(logMsg);
+      fetchApi('logAction', { nickname: currentUser, actionText: logMsg, envLogText: getEnvLogText() });
+    }
+
+    async function submitRegistration() {
+      const nickname = document.getElementById('input-nickname').value.trim();
+      const song = document.getElementById('input-song').value;
+      
+      if (!nickname) { alert('ニックネームを入力してください。'); return; }
+      if (!song) { alert('4年生の部歌を選択してください。'); return; }
+      
+      if (userData.includes(nickname)) {
+        alert('そのニックネームは既に登録されています。上のリストから選んで入室してください。');
+        return;
+      }
+      
+      document.querySelector('.btn-submit[style*="lime-green"]').innerText = '登録処理中...';
+      addLiveLog("外部サーバーへデータを送信中...");
+      
+      const result = await fetchApi('registerUser', {
+        nickname: nickname,
+        songTitle: song,
+        envLogText: getEnvLogText(),
+        lineId: currentLineId
+      });
+
+      if (result && result.success) {
+        currentUser = nickname;
+        saveMemory(currentUser);
+        
+        alert('ご登録ありがとうございました！');
+        applyLoginState();
+        
+        const logMsg = "新規登録完了（LINE ID紐付け: " + (currentLineId ? "成功" : "ID無") + "）";
+        addLiveLog(logMsg);
+      } else {
+        addLiveLog("❌ サーバー通信エラー");
+        alert('登録に失敗しました。時間をおいてやり直してください。');
+        document.querySelector('.btn-submit[style*="lime-green"]').innerText = '新規登録して入室';
+      }
+    }
+
+    function saveMemory(name) {
+      localStorage.setItem('yufu_nickname', name);
+      setCookie('yufu_nickname', name, 365);
+    }
+
+    function handleMenuClick(menuName) {
+      const clickLog = "メニュー選択: 「" + menuName + "」";
+      addLiveLog(clickLog);
+      fetchApi('logAction', { nickname: currentUser, actionText: clickLog, envLogText: getEnvLogText() });
+    }
+  </script>
+
+</body>
+</html>
