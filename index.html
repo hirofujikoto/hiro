@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <title>由布蹴友会 50周年記念ポータル</title>
   
-  <!-- スマホでの文字縮小を防ぎ、適切なサイズに固定するビューポート設定 -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
@@ -19,9 +18,9 @@
 
   <style>
     /* SOURCE INFORMATION
-       Version: 2.0.9 (2026/07/26)
+       Version: 2.0.11 (2026/07/27)
        Level: Production
-       Topic: Yufu Shuyukai 50th Dashboard (Mobile Viewport & Font Size Optimization)
+       Topic: Yufu Shuyukai 50th Dashboard (Web Access Support & LIFF Bypass on PC)
     */
 
     :root {
@@ -78,7 +77,7 @@
 </head>
 <body>
 
-  <div class="version-info">v2.0.9 (Mobile UI Scale Optimized)</div>
+  <div class="version-info">v2.0.11 (Web Access Support & LIFF Bypass)</div>
 
   <!-- ヘッダー -->
   <div class="main-header">
@@ -146,8 +145,7 @@
 
   <script>
     const MY_LIFF_ID = "2010848193-i0mzw5Ie"; 
-    // ※前回正しく通信できたGASのURLを維持してください
-    const GAS_URL = "【ここにGASの最新のデプロイURLを貼り付けます】";
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbwWir1AbBhw-V42B5P7T2damW0_OhV0aps7fU0Pc0n7aWVfmGBU5N2Ox8-C__dz6xnV/exec";
 
     let menuData = [];
     let songData = [];
@@ -253,7 +251,7 @@
     }
 
     window.onload = async function() {
-      addLiveLog("サーバーから初期データを読み込み中... [v2.0.9]");
+      addLiveLog("サーバーから初期データを読み込み中... [v2.0.11]");
       
       const initData = await fetchApi('init');
       if (initData) {
@@ -279,20 +277,27 @@
         }
       }, 3000); 
       
+      // 【変更点】 PCアクセス時にLINEログインに強制リダイレクトされる設定を削除しました。
       liff.init({ 
-        liffId: MY_LIFF_ID,
-        withLoginOnExternalBrowser: true 
+        liffId: MY_LIFF_ID
       })
         .then(() => {
           if (isLiffHandled) return;
           clearTimeout(liffTimeout);
 
-          if (!liff.isLoggedIn()) {
-            addLiveLog("⚠️ [重要] LINE外ブラウザのためLINE IDを取得できません。");
+          // 【変更点】 LINE内ブラウザからのアクセスかどうかを判定します。
+          if (liff.isInClient()) {
+            if (!liff.isLoggedIn()) {
+              addLiveLog("LINE内で未ログイン状態です。ログイン処理を行います。");
+              liff.login();
+              return;
+            }
+            return liff.getProfile();
+          } else {
+            addLiveLog("💻 ウェブブラウザ（LINE外）からのアクセスを検知。記憶モードで起動します。");
             safeFallbackOriginalOnload();
-            return;
+            return null; // プロファイル取得をスキップ
           }
-          return liff.getProfile();
         })
         .then((profile) => {
           if (!profile || isLiffHandled) return;
